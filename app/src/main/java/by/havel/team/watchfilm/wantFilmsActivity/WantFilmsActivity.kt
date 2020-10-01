@@ -89,6 +89,7 @@ class WantFilmsActivity : AppCompatActivity(), View.OnClickListener, WantFilmsAd
     
     override fun onItemClicked(position: Int) {
     }
+
     
     override fun sendName(name: String) {
         film.name = name
@@ -105,7 +106,6 @@ class WantFilmsActivity : AppCompatActivity(), View.OnClickListener, WantFilmsAd
         wantFilmsAdapter.films.add(film)
         wantFilmsAdapter.notifyDataSetChanged()
     }
-    
     
 }
 

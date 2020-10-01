@@ -42,7 +42,7 @@ class WantFilmsAdapter(private val callback: OnItemClick) :
         
         fun bind(film: Film) {
             
-            favorite.isChecked = film.favorites
+           // favorite.isChecked = film.favorites
             filmid.text = film.id.toString()
             name.text = film.name
             year.text = film.year
