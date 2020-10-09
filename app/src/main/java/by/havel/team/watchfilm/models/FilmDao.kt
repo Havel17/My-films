@@ -17,7 +17,7 @@ interface FilmDao {
     fun getAllFilm(): MutableList<Film>
     
     @Query("DELETE FROM film WHERE id LIKE :id")
-    fun deleteFilm(id: Int)
+    fun deleteFilm(id: Int?)
     
     @Query("DELETE FROM film")
     fun removeAll()

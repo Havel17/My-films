@@ -13,5 +13,5 @@ data class Film(
     @ColumnInfo(name = "date_added") val date_added: String?,
     @ColumnInfo(name = "image") val image: String?,
     @ColumnInfo(name = "category") val category: String?,
-    @ColumnInfo(name = "favorites") val favorites: Boolean
+    @ColumnInfo(name = "favorites") var favorites: Boolean
 )

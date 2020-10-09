@@ -19,7 +19,7 @@ object LocalRepository : Repository {
         return filmDao?.getAllFilm()!!
     }
     
-    override fun removeFilm(id: Int) {
+    override fun removeFilm(id: Int?) {
         filmDao?.deleteFilm(id)
     }
     

@@ -14,7 +14,6 @@ class WantFilmsViewModel(private val repository: LocalRepository) : ViewModel() 
     val filmLiveData = MutableLiveData<Film>()
     
     private val changeDataString = MutableLiveData<String>()
-    
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     
     fun insertFilm(model: Film) {
@@ -37,7 +36,7 @@ class WantFilmsViewModel(private val repository: LocalRepository) : ViewModel() 
         }
     }
     
-    fun removeFilm(id: Int) {
+    fun removeFilm(id: Int?) {
         coroutineScope.launch {
             repository.removeFilm(id)
         }
@@ -48,6 +47,7 @@ class WantFilmsViewModel(private val repository: LocalRepository) : ViewModel() 
             repository.removeAllFilm()
         }
     }
+    
     
     fun  saveData(str: String){
         changeDataString.value = str

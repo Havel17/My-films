@@ -12,7 +12,7 @@ import by.havel.team.watchfilm.models.Film
 import by.havel.team.watchfilm.repository.LocalRepository
 import by.havel.team.watchfilm.wantFilmsActivity.WantFilmsActivity
 import kotlinx.android.synthetic.main.activity_viewedfilms.*
-import kotlinx.android.synthetic.main.activity_wantfilms.*
+import kotlinx.android.synthetic.main.activity_want_films.*
 
 class ViewedFilmsActivity : AppCompatActivity(), View.OnClickListener {
 

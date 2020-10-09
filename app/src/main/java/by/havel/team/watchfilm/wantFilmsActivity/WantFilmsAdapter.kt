@@ -1,12 +1,15 @@
 package by.havel.team.watchfilm.wantFilmsActivity
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import by.havel.team.watchfilm.R
 import by.havel.team.watchfilm.models.Film
 import kotlinx.android.synthetic.main.model_film.view.*
+import java.util.*
 
 class WantFilmsAdapter(private val callback: OnItemClick) :
     RecyclerView.Adapter<WantFilmsAdapter.WantFilmsViewHolder>() {
@@ -28,6 +31,11 @@ class WantFilmsAdapter(private val callback: OnItemClick) :
         holder.itemView.setOnClickListener {
             callback.onItemClicked(holder.adapterPosition)
         }
+        holder.itemView.favorite.setOnClickListener {
+            callback.onFavoriteClicked(film.id!!)
+            holder.favorite(film)
+            film.favorites = !film.favorites
+        }
     }
     
     override fun getItemCount(): Int = films.size
@@ -38,20 +46,31 @@ class WantFilmsAdapter(private val callback: OnItemClick) :
         private val name = filmView.name
         private val year = filmView.year
 //        private val adddate = filmView.adddate
-//        private val star = filmView.star
         
         fun bind(film: Film) {
             
-           // favorite.isChecked = film.favorites
             filmid.text = film.id.toString()
             name.text = film.name
             year.text = film.year
 //            adddate.text = film.date_added.toString()
-//            star.text = film.star.toString()
+            
+            favorite(film)
         }
+        
+        fun favorite(film: Film) {
+            if (film.favorites) {
+                favorite.setImageResource(R.drawable.ic_star)
+                return
+            }
+            favorite.setImageResource(R.drawable.ic_starsss)
+        }
+        
     }
     
     interface OnItemClick {
         fun onItemClicked(position: Int)
+        fun onFavoriteClicked(id: Int)
     }
+    
 }
+
