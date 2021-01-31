@@ -5,14 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import by.havel.team.watchfilm.models.Film
 import by.havel.team.watchfilm.repository.LocalRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class WantFilmsViewModel(private val repository: LocalRepository) : ViewModel() {
-    val filmsLiveData = MutableLiveData<MutableList<Film>>()
-    val filmLiveData = MutableLiveData<Film>()
-    
+    val getAllFilmsLiveData = MutableLiveData<MutableList<Film>>()
+    val getFilmLiveData = MutableLiveData<Film>()
     private val changeDataString = MutableLiveData<String>()
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     
@@ -22,20 +19,19 @@ class WantFilmsViewModel(private val repository: LocalRepository) : ViewModel() 
         }
     }
     
-    fun getFilm(id: Int) {
-        coroutineScope.launch {
-            val film = repository.getFilm(id)
-            filmLiveData.postValue(film)
-        }
-    }
-    
     fun getAllFilm() {
         coroutineScope.launch {
             val allFilm = repository.getAllFilm()
-            filmsLiveData.postValue(allFilm)
+            getAllFilmsLiveData.postValue(allFilm)
         }
     }
     
+    fun getFilm(id:Int){
+        coroutineScope.async {
+            val film = repository.getFilm(id)
+            getFilmLiveData.postValue(film)
+        }
+    }
     fun removeFilm(id: Int?) {
         coroutineScope.launch {
             repository.removeFilm(id)
@@ -48,6 +44,12 @@ class WantFilmsViewModel(private val repository: LocalRepository) : ViewModel() 
         }
     }
     
+    fun editFilm(model: Film){
+        coroutineScope.launch {
+            repository.editFilm(model)
+        }
+    }
+    
     
     fun  saveData(str: String){
         changeDataString.value = str
@@ -56,5 +58,5 @@ class WantFilmsViewModel(private val repository: LocalRepository) : ViewModel() 
     fun loadData():LiveData<String>{
         return changeDataString
     }
-    
+
 }

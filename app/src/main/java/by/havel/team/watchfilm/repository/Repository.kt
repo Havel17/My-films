@@ -8,4 +8,5 @@ interface Repository {
     fun getAllFilm():MutableList<Film>
     fun removeFilm(Position: Int?)
     fun removeAllFilm()
+    fun editFilm(model: Film)
 }

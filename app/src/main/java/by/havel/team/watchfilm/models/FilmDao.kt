@@ -1,9 +1,6 @@
 package by.havel.team.watchfilm.models
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface FilmDao {
@@ -21,5 +18,8 @@ interface FilmDao {
     
     @Query("DELETE FROM film")
     fun removeAll()
+    
+    @Update()
+    fun editFilm(model: Film?)
     
 }

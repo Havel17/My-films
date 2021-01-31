@@ -2,36 +2,47 @@ package by.havel.team.watchfilm.wantFilmsActivity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import by.havel.team.watchfilm.MainMenuFragment
 import by.havel.team.watchfilm.R
+import by.havel.team.watchfilm.database.Database
 import by.havel.team.watchfilm.models.Film
 import by.havel.team.watchfilm.repository.LocalRepository
 import by.havel.team.watchfilm.viewedFilmsActivity.ViewedFilmsActivity
 import by.havel.team.watchfilm.wantFilmsActivity.fragments.AddFilmFragment
+import by.havel.team.watchfilm.wantFilmsActivity.fragments.FilmMenuFragment
 import kotlinx.android.synthetic.main.activity_want_films.*
 import kotlinx.android.synthetic.main.activity_want_films.addwantedfilm
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class WantFilmsActivity : AppCompatActivity(), View.OnClickListener, WantFilmsAdapter.OnItemClick,
-    AddFilmFragment.isendFilm {
+    AddFilmFragment.isendFilm, FilmMenuFragment.imenuFilm, MainMenuFragment.imainmenuFilm {
     
     lateinit var viewModel: WantFilmsViewModel
     lateinit var wantFilmsAdapter: WantFilmsAdapter
+    
+    private lateinit var filmList: MutableList<Film>
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_want_films)
         setSupportActionBar(toolBar)
+        Database.getDatabase(this)
         
         viewModel = ViewModelProvider(
             this,
             WantFilmViewModelFactory(LocalRepository)
         ).get(WantFilmsViewModel::class.java)
-        viewModel.filmsLiveData.observe(this, mutableListFilm)
-        viewModel.filmLiveData.observe(this,mutableFilm)
+        viewModel.getAllFilmsLiveData.observe(this, getAllFilms)
         viewModel.getAllFilm()
+        
         
         wantFilmsAdapter = WantFilmsAdapter(this)
         wantfilmrecyclerview.layoutManager = LinearLayoutManager(this)
@@ -51,36 +62,83 @@ class WantFilmsActivity : AppCompatActivity(), View.OnClickListener, WantFilmsAd
                 openAddFilmFragment()
             }
             R.id.sorting -> {
-                wantFilmsAdapter.films.clear()
-                wantFilmsAdapter.notifyDataSetChanged()
-                viewModel.getAllFilm()
+                openMainMenuFragment()
             }
         }
     }
     
-    override fun sendFilm(name: String, year: String) {
-        val film = Film(0, name, year, "0", "0", "0", "0", false)
-        viewModel.insertFilm(film)
-        film.id = wantFilmsAdapter.films.size +1
-        wantFilmsAdapter.films.add(film)
-        wantFilmsAdapter.notifyDataSetChanged()
-    }
-    
-    private val mutableListFilm = Observer<MutableList<Film>> {
+    private val getAllFilms = Observer<MutableList<Film>> {
+        filmList = it
+        wantFilmsAdapter.films.clear()
         wantFilmsAdapter.films.addAll(it)
         wantFilmsAdapter.notifyDataSetChanged()
     }
-    private val mutableFilm = Observer<Film> {
+    
+    override fun sendFilm(name: String, year: String) {
+        val film = Film(name, year, "0", "0", "0", "0", false)
+        viewModel.insertFilm(film)
+        viewModel.getAllFilm()
+    }
+    
+    override fun removefilm(position: Int) {
+        val filmid = wantFilmsAdapter.films.get(position).id
+        viewModel.removeFilm(filmid)
+        wantFilmsAdapter.films.removeAt(position)
+        wantFilmsAdapter.notifyDataSetChanged()
+    }
+    
+    override fun changeFilm(position: Int) {
+       // openAddFilmFragment()
+        // Изменение фильма
+    }
+    
+    override fun update() {
+        viewModel.getAllFilm()
+    }
+    // поиск части слова в названии фильма
+    override fun findfilm(findWord: String) {
+        val findedFilms : MutableList<Film> = mutableListOf() //создаем новый список с найдеными фильмами
+        if (findWord== ""){
+            viewModel.getAllFilm()
+        }else {
+            filmList.forEachIndexed { filmId, film ->
+                var count = 0  // количество найденных букв идущих подрят
+                var j = 0  // индекс в слове, которое ищем ( словеныш)
+                for (i in 0..film.name!!.lastIndex) {  // перебираем все буквы в названии
+                    if (film.name!![i].equals(
+                            findWord[j],
+                            ignoreCase = true
+                        )
+                    ) { // сравниваем букву названия и первую букву словеныша
+                        count++  // если нашли, увеличиваем кол-во букв идущих подрят и в сл цикле сравниваем сл букву названия и вторую букву словеныша
+                        j++
+                        if (count == findWord.length) {  // если кол-во идущих букв подрят равен длине слова, которое мы ищем, значит мы нашли то что надо
+                            j = 0
+                            count = 0
+                            findedFilms.add(film) // добавляем в новый список найденых фильмов
+                            return@forEachIndexed
+                        }
+                    } else {
+                        j = 0
+                        count = 0
+                    }
+                }
         
+            }// ну а тут мы типа обновляем экран найдеными словами, сначала чистим, потом добавляем список с новыми фильмами, после говорим адаптеру шо шото изменилось
+            wantFilmsAdapter.films.clear()
+            wantFilmsAdapter.films.addAll(findedFilms)
+            wantFilmsAdapter.notifyDataSetChanged()
+        }
     }
     
     override fun onItemClicked(position: Int) {
-    
+        openFilmMenuFragment(position);
     }
     
-    override fun onFavoriteClicked(id: Int) {
-    
+    override fun onFavoriteClicked(film: Film) {
+        viewModel.editFilm(film)
     }
+    
     
     fun openViewedFilmsActivity() {
         val intent = Intent(this, ViewedFilmsActivity::class.java)
@@ -97,5 +155,29 @@ class WantFilmsActivity : AppCompatActivity(), View.OnClickListener, WantFilmsAd
             )
             .commit()
     }
+    
+    fun openFilmMenuFragment(position: Int) {
+        supportFragmentManager
+            .beginTransaction()
+            .addToBackStack(null)
+            .replace(
+                R.id.want_film_Fragment_container,
+                FilmMenuFragment(position)
+            )
+            .commit()
+    }
+    
+    fun openMainMenuFragment() {
+        supportFragmentManager
+            .beginTransaction()
+            .addToBackStack(null)
+            .replace(
+                R.id.want_film_Fragment_container,
+                MainMenuFragment()
+            )
+            .commit()
+    }
+
 }
+
 

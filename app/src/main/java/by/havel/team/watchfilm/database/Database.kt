@@ -13,7 +13,8 @@ object Database{
                 context,
                 FilmDatabase::class.java,
                 "Film Database"
-            ).build()
+            ).fallbackToDestructiveMigration()
+                .build()
         }
         return database
     }

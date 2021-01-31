@@ -27,4 +27,9 @@ object LocalRepository : Repository {
         filmDao?.removeAll()
     }
     
+    override fun editFilm(model: Film) {
+        filmDao?.editFilm(model)
+    }
+    
+    
 }

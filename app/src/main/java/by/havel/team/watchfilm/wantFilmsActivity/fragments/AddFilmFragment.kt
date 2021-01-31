@@ -52,16 +52,18 @@ class AddFilmFragment : Fragment(), View.OnClickListener {
     fun isDataEmpty(name: String,year: String) {
         if (name == "") {
             Toast.makeText(context, "Введите название", Toast.LENGTH_SHORT).show()
+            addname.requestFocus()
             return
         } else if (year == "") {
             Toast.makeText(context, "Введите год", Toast.LENGTH_SHORT).show()
+            addyear.requestFocus()
             return
-        }else if( Integer.parseInt(year) <1800 ){
-            Toast.makeText(context,"это кино снимали динозавры?" , Toast.LENGTH_SHORT).show()
-            return
-        }else if( Integer.parseInt(year) >3000){
-            Toast.makeText(context,"МакФлай привез фильм из будущего?" , Toast.LENGTH_SHORT).show()
-            return
+//        }else if( Integer.parseInt(year) <1800 ){
+//            Toast.makeText(context,"это кино снимали динозавры?" , Toast.LENGTH_SHORT).show()
+//            return
+//        }else if( Integer.parseInt(year) >3000){
+//            Toast.makeText(context,"МакФлай привез фильм из будущего?" , Toast.LENGTH_SHORT).show()
+//            return
         }
         sendfilm.sendFilm(name, year)
         val ac = activity
